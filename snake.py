@@ -66,10 +66,11 @@ class snake:
             self.snake_head[0] -= 10
         elif self.old_pos == 3:
             self.snake_head[1] += 10
-
+        # 撞墙
         if self.snake_head[0] < 0 or self.snake_head[0] >= self.width or self.snake_head[1] < 0 or self.snake_head[
             1] >= self.heigh:
             return self.get_state(), -10 * (1 - self.growth_size * 0.1), True, len(self.snake_body)-3
+        # 撞到身体
         for x, y in self.snake_body:
             if self.snake_head[0] == x and self.snake_head[1] == y:
                 return self.get_state(), -10 * (1 - self.growth_size * 0.1), True, len(self.snake_body)-3
@@ -87,6 +88,7 @@ class snake:
         self.steps += 1
         if self.steps >= self.step_limit:
             return self.get_state(), -10, True, len(self.snake_body)-3
+        # 返回的是状态、奖励、游戏是否结束、得分
         return self.get_state(), reward, False, len(self.snake_body)-3
 
     def get_state(self):
