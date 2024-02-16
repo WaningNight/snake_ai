@@ -74,9 +74,12 @@ class snake:
         for x, y in self.snake_body:
             if self.snake_head[0] == x and self.snake_head[1] == y:
                 return self.get_state(), -10 * (1 - self.growth_size * 0.1), True, len(self.snake_body)-3
+        
         new_food_dist = abs(self.snake_head[0] - self.food_pos[0]) + abs(self.snake_head[1] - self.food_pos[1])
+        # 如果靠近食物加1分，否则减1分
         reward += 1 if old_food_dist > new_food_dist else -1
         self.snake_body.insert(0, list(self.snake_head))
+        # 吃到食物加分并重置步数，蛇越长加的越多
         if self.snake_head[0] == self.food_pos[0] and self.snake_head[1] == self.food_pos[1]:
             reward += 5 * (1 + self.growth_size * 0.1)
             self.growth_size += 1
@@ -86,6 +89,7 @@ class snake:
         if self.render:
             self.draw()
         self.steps += 1
+        # 吃到食物前的步数超过step_limit直接结束，扣10分
         if self.steps >= self.step_limit:
             return self.get_state(), -10, True, len(self.snake_body)-3
         # 返回的是状态、奖励、游戏是否结束、得分
@@ -133,7 +137,7 @@ class Dqn:
 
     class Net(nn.Module):
         def __init__(self):
-            super().__init__()  # 调用父类nn.Module的构造函数，得到了父类的各个成员
+            super().__init__()  
             self.fc1 = nn.Linear(NUM_STATES, 128)
             self.fc1.weight.data.normal_(0, 0.1)
             self.fc2 = nn.Linear(128, NUM_ACTIONS)
