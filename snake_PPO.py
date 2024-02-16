@@ -67,19 +67,22 @@ class snake:
             self.snake_head[0] -= 10
         elif self.old_pos == 3:
             self.snake_head[1] += 10
-
+        # 撞墙
         if self.snake_head[0] < 0 or self.snake_head[0] >= self.width or self.snake_head[1] < 0 or self.snake_head[
             1] >= self.heigh:
-            return self.get_state(), -100 * (1 - self.growth_size * 0.1), True, len(self.snake_body)-3
+            return self.get_state(), -10 * (1 - self.growth_size * 0.1), True, len(self.snake_body)-3
+        # 撞到身体
         for x, y in self.snake_body:
             if self.snake_head[0] == x and self.snake_head[1] == y:
-                return self.get_state(), -100 * (1 - self.growth_size * 0.1), True, len(self.snake_body)-3
+                return self.get_state(), -10 * (1 - self.growth_size * 0.1), True, len(self.snake_body)-3
+        
         new_food_dist = abs(self.snake_head[0] - self.food_pos[0]) + abs(self.snake_head[1] - self.food_pos[1])
-        reward += 2 if old_food_dist > new_food_dist else -2
+        # 如果靠近食物加1分，否则减1分
+        reward += 1 if old_food_dist > new_food_dist else -1
         self.snake_body.insert(0, list(self.snake_head))
+        # 吃到食物加分并重置步数，蛇越长加的越多
         if self.snake_head[0] == self.food_pos[0] and self.snake_head[1] == self.food_pos[1]:
-            self.steps = 0
-            reward += 100 * (1 + self.growth_size * 0.1)
+            reward += 5 * (1 + self.growth_size * 0.1)
             self.growth_size += 1
             self.food_pos = [random.randrange(1, (self.width // 10)) * 10, random.randrange(1, (self.heigh // 10)) * 10]
         else:
@@ -87,8 +90,10 @@ class snake:
         if self.render:
             self.draw()
         self.steps += 1
+        # 吃到食物前的步数超过step_limit直接结束，扣10分
         if self.steps >= self.step_limit:
-            return self.get_state(), -100, True, len(self.snake_body)-3
+            return self.get_state(), -10, True, len(self.snake_body)-3
+        # 返回的是状态、奖励、游戏是否结束、得分
         return self.get_state(), reward, False, len(self.snake_body)-3
 
     def get_state(self):
